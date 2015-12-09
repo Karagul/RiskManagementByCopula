@@ -1,0 +1,91 @@
+#######################Download data of 20 stocks #####################
+
+install.packages('quantmod')
+
+library(quantmod)
+library(copula)   # for copula functions
+library(MASS)
+par(mfrow=c(4,5))
+
+stocklist = c('PPG',  'STZ',  'AIG',  'LB'   ,'AXP'  ,'RRC'  ,'ORCL', 'AVB',  'NTRS', 'HIG',  'MAS','STX','KMI','BHI','FFIV', 'PRU',  'WEC'  ,'MAC',"MKC","CMI")
+
+for (i in stocklist) {
+  x = get(getSymbols(i, src = 'yahoo', from = '2015-01-01', adjust=TRUE))
+  xr = dailyReturn(x, type = 'log')
+  assign(i, xr)
+}
+
+dat <- cbind(PPG, STZ,    AIG,    LB,    AXP,    RRC,    ORCL,    AVB,    NTRS,    HIG,    MAS,    STX,    KMI,    BHI,    FFIV,    PRU,    WEC,    MAC,    MKC,    CMI)
+dat <- as.data.frame(dat)
+names(dat) <- stocklist 
+
+
+##################### Raw data histogram ############################
+
+
+for (i in 1:20)
+{
+  hist(dat[,i], main = stocklist[i])
+}
+
+###################### Test of Normality - QQplot #############################
+
+for (i in 1:20){
+  qqnorm(dat[,2])
+}
+
+####################### Fit Normal###########################################
+est_mean <- apply(dat,2, function(x){as.numeric(fitdistr(x,"normal")$estimate)[1]})
+est_sd <-  apply(dat,2, function(x){as.numeric(fitdistr(x,"normal")$estimate)[2]})
+
+data1 <- matrix(0,dim(dat)[1],20)
+
+for (i in 1:20){
+  data1[,i] <- pnorm(dat[,i], mean=est_mean[i], sd=est_sd[i])
+}
+
+########################## Uniform Distribution ###############
+for (i in 1:20)
+{
+  hist(data1[,i], main = paste('Transfomed', stocklist[i], sep= ''))
+}
+
+
+############################ Fit Copula ########################
+
+### Fit normalCopula
+
+fnorm_itau = fitCopula(data=data1,  
+                     
+                     method = "itau", optim.method="BFGS", 
+                     
+                     copula=normalCopula(dim=20, dispstr="un"))
+
+fnorm_irho = fitCopula(data=data1,  
+                     
+                     method = "irho", optim.method="BFGS", 
+                     
+                     copula=normalCopula(dim=20, dispstr="un"))
+
+### Estimating df parameter for t-copula
+
+cor_tau = cor(data1, method="kendall")
+
+t_omega = sin(pi*cor_tau/2)
+
+cop_t_dim2 = tCopula(t_omega, dim = 20, dispstr = "un", df = 190)
+
+
+ft2 = fitCopula(cop_t_dim2, data=data1,
+                
+                method = "ml", optim.method="L-BFGS-B", 
+                
+                start=c(t_omega,5),lower=c(0,2.5),upper=c(.5,15) )
+
+
+ncopula <- normalCopula(dim=20, param = c())
+
+
+########## Best Copula ###############
+
+bestcopula <- fnorm
