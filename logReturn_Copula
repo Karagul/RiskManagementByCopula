@@ -2,10 +2,10 @@
 
 install.packages('quantmod')
 
-library(quantmod)
+library(quantmod) # for getting stock price
 library(copula)   # for copula functions
-library(MASS)
-par(mfrow=c(4,5))
+library(MASS)     
+par(mfrow=c(4,5)) # for plots layout
 
 stocklist = c('PPG',  'STZ',  'AIG',  'LB'   ,'AXP'  ,'RRC'  ,'ORCL', 'AVB',  'NTRS', 'HIG',  'MAS','STX','KMI','BHI','FFIV', 'PRU',  'WEC'  ,'MAC',"MKC","CMI")
 
