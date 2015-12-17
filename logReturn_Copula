@@ -7,15 +7,17 @@ library(copula)   # for copula functions
 library(MASS)     
 par(mfrow=c(4,5)) # for plots layout
 
-stocklist = c('PPG',  'STZ',  'AIG',  'LB'   ,'AXP'  ,'RRC'  ,'ORCL', 'AVB',  'NTRS', 'HIG',  'MAS','STX','KMI','BHI','FFIV', 'PRU',  'WEC'  ,'MAC',"MKC","CMI")
-
+stocklist = c('AMZN',  'COH',  'EXPE',  'MCD'   ,'NKE'  ,'RL'  ,'CCE', 'PEP',  'AXP', 
+              'AIG',  'BLK','COF','GS','JPM','MCO', 'WFC',  'FDX'  ,'MMM','AAPL','FB')
+              
 for (i in stocklist) {
   x = get(getSymbols(i, src = 'yahoo', from = '2015-01-01', adjust=TRUE))
   xr = dailyReturn(x, type = 'log')
   assign(i, xr)
 }
 
-dat <- cbind(PPG, STZ,    AIG,    LB,    AXP,    RRC,    ORCL,    AVB,    NTRS,    HIG,    MAS,    STX,    KMI,    BHI,    FFIV,    PRU,    WEC,    MAC,    MKC,    CMI)
+dat <- cbind(AMZN,  COH,  EXPE, MCD ,NKE ,RL ,CCE, PEP, AXP, 
+             AIG, BLK,COF,GS,JPM,MCO, WFC, FDX ,MMM,AAPL,FB)
 dat <- as.data.frame(dat)
 names(dat) <- stocklist 
 
@@ -31,7 +33,7 @@ for (i in 1:20)
 ###################### Test of Normality - QQplot #############################
 
 for (i in 1:20){
-  qqnorm(dat[,2])
+  qqnorm(dat[,i])
 }
 
 ####################### Fit Normal###########################################
@@ -116,7 +118,7 @@ for (i in 1:20){
   hist(rand_mvdc[,i])
 }
 
-# simulated VaR and ES
+##################################### simulated VaR and ES ##########################
 meanRet <- apply(rand_mvdc, 1, mean)
 x <- meanRet[order(meanRet)]
 # assuem we invest $1000,000
