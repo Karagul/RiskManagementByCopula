@@ -116,53 +116,20 @@ for (i in 1:20){
   hist(rand_mvdc[,i])
 }
 
-
-
-################################### Tangency Portfolio ##############################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-####################### Equal Weighted Portfolio ########################
-
-meanRet <- mean(apply(rand_mvdc, 2, mean))
-
-rand.cov <- cov(rand_mvdc)
-rand.var <- sum(rand.cov) - sum(diag(rand.cov))
-rand.var <- rand.var/400
-sdRet <- sqrt(rand.var)
-
-
-####################  Investiment $1000,000 ###########################
-
+# simulated VaR and ES
+meanRet <- apply(rand_mvdc, 1, mean)
+x <- meanRet[order(meanRet)]
+# assuem we invest $1000,000
 invest = 1000000
+VaR_5perc_simulation <- -invest*x[number*0.05]
+ES_5prc_simulation <- -invest*(mean(x[1:number*0.05]))
 
-VaR5perc.port <- invest*(-meanRet+1.645*sdRet)
-
-ES5per.port <- invest*(-meanRet+0.103*sdRet/0.05)
-
+####################### Parametric Estimation of VaR and ES ########################
+meanRet <- mean(apply(dat, 2, mean))
+sdRet <- sqrt(sum(cov(dat)/400))
+invest = 1000000
+VaR_para <- invest*(-meanRet+1.645*sdRet)
+ES5_para <- invest*(-meanRet+0.103*sdRet/0.05)
 
 
     
